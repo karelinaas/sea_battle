@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -67,8 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'sea_battle.wsgi.application'
-
+ASGI_APPLICATION = 'sea_battle.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
