@@ -17,5 +17,6 @@ from django.conf.urls import include
 from django.urls import path
 
 urlpatterns = [
-    path('', include('chat.urls')),
+    path('', include('game.urls')),
+    path('chat', include('chat.urls')),
 ]

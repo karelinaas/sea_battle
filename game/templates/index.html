@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="wrapper">
+        <h1>🚢 Морской бой 💥</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <div class='form-control'>
+                <label for="room">ID игры</label>
+                <input id="room" type="text" name="room_code" required style="width: 89%"/>
+            </div>
+            <div class='form-control'>
+                <label for="character_choice">Игрок</label>
+                <select for="character_choice" name="character_choice">
+                    <option value="player1">Игрок 1</option>
+                    <option value="player2">Игрок 2</option>
+                </select>
+            </div>
+            <input type="submit" class="button" value="Войти в игру"/>
+    </div>
+    </form>
+{% endblock content %}
