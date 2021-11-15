@@ -6,7 +6,7 @@
             {% csrf_token %}
             <div class='form-control'>
                 <label for="room">ID игры</label>
-                <input id="room" type="text" name="room_code" required style="width: 89%"/>
+                <input id="room" type="text" name="room_name" required style="width: 89%"/>
             </div>
             <div class='form-control'>
                 <label for="character_choice">Игрок</label>
@@ -16,6 +16,6 @@
                 </select>
             </div>
             <input type="submit" class="button" value="Войти в игру"/>
+        </form>
     </div>
-    </form>
 {% endblock content %}

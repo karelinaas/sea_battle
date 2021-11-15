@@ -4,6 +4,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: Arial;
 }
 #game_board {
     display: grid;
@@ -56,4 +57,30 @@ input, select {
     transition: all 150ms ease-out;
     height: 46px;
     margin-top: 10px;
+}
+.column {
+    text-align: center;
+    margin-right: 40px;
+}
+.field-row {
+    margin: 0 0 5px 0;
+}
+.field-row button {
+    min-width: 25px;
+    min-height: 24px;
+}
+.field-row .empty, .field-row .ship {
+    color: transparent;
+}
+.field-row .ship {
+    background-color: grey;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 3px;
+}
+.field-row .ship.red {
+    color: black;
+    background-color: #ad5353;
+    border-color: #ad5353;
 }
