@@ -1,4 +1,6 @@
-import channels.layers
+import json
+
+import redis
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
@@ -19,11 +21,60 @@ def play(request, room_name):
     if 'char_choice' not in request.COOKIES or request.COOKIES['char_choice'] not in ('player1', 'player2'):
         return redirect(reverse('index'))
 
-    # TODO game state - if doesn't exist, store it (redis)
-    channel_layer = channels.layers.get_channel_layer()
-    channel_layer.send('game_channel_{0}'.format(room_name), {
-        'type': 'check_game_state',
-        'character': request.COOKIES['char_choice'],
-    })
+    player = request.COOKIES['char_choice']
 
-    return render(request, 'play.html', {})
+    r = redis.Redis(host='redis', port=6379, db=0)
+
+    # current player's field
+    # TODO format
+    field_json = r.get('field_' + room_name + '_' + player)
+    # another player's field
+    another_field_json = r.get('another_field_' + room_name + '_' + player)
+
+    field_dict = {
+        'field': field_json,
+        'another_field': another_field_json,
+    }
+
+    for i, field in field_dict.items():
+        if not field:
+            if i == 'field':
+                if player == 'player1':
+                    field = [
+                        [0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+                        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 0, 0, 1, 1, 1, 0, 0, 1],
+                        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+                        [0, 0, 1, 1, 1, 0, 0, 1, 0, 0],
+                    ]
+                else:
+                    field = [
+                        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 0, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+                        [1, 0, 1, 1, 0, 0, 0, 0, 0, 1],
+                        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    ]
+            else:
+                field = [[0 for col in range(10)] for row in range(10)]
+
+            # TODO format
+            r.set(i + '_' + room_name + '_' + player, json.dumps(field))
+        else:
+            field = json.loads(field)
+        field_dict[i] = enumerate(field)
+
+    field_dict['room_name'] = room_name
+    field_dict['player'] = player
+
+    return render(request, 'play.html', field_dict)

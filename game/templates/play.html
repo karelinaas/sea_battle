@@ -1,319 +1,117 @@
 {% extends 'base.html' %}
 {% block content %}
+    {{ room_name|json_script:'room-name' }}
+    {{ player|json_script:'player' }}
+    <script>
+    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+    const player = JSON.parse(document.getElementById('player').textContent);
+
+    const gameSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/game/'
+        + roomName
+        + '/'
+    );
+
+    function turn(x, y) {
+        gameSocket.send(JSON.stringify({
+            'x': x,
+            'y': y,
+            'from': player,
+            'type': 'turn',
+        }));
+    }
+
+    function render_field(player_char, field_data) {
+        if (player_char === player) {
+            html = '<h2>Ваше поле</h2>';
+            id = 'mine';
+        } else {
+            html = '<h2>Поле противника</h2>';
+            id = 'another';
+        }
+
+        for (var i = 0; i < field_data.length; i++) {
+            row = field_data[i];
+
+            html += '<p class="field-row">';
+            for (var j = 0; j < row.length; j++) {
+
+                if (row[j] === 0) {
+                    if (id === 'another') {
+                        html += '<button class="empty" onclick="turn(' + i + ', ' + j + ')">●</button>';
+                    } else {
+                        html += '<button class="empty">●</button>';
+                    }
+                } else if (row[j] === 1) {
+                    html += '<button class="ship">●</button>';
+                } else if (row[j] === -1) {
+                    html += '<button class="ship red">x</button>';
+                } else {
+                    html += '<button>●</button>';
+                }
+            }
+            html += '</p>';
+        }
+
+        document.getElementById(id).innerHTML = html
+    }
+
+    gameSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log(data)
+
+        if (data.to !== player) {
+            render_field(data.to, data.another_field)
+        } else {
+            render_field(player, data.field)
+        }
+    };
+    </script>
+
     <div class="wrapper" style="display: flex; height: 100%; align-items: center;">
-        <div class="column">
+        <div class="column" id="mine">
             <h2>Ваше поле</h2>
 
-            <p class="field-row">
-            <button disabled style="color: transparent">0</button>
-            <button disabled>1</button>
-            <button disabled>2</button>
-            <button disabled>3</button>
-            <button disabled>4</button>
-            <button disabled>5</button>
-            <button disabled>6</button>
-            <button disabled>7</button>
-            <button disabled>8</button>
-            <button disabled>9</button>
-            <button disabled>10</button>
-            </p>
+            {% for i, row in field %}
+                <p class="field-row">
 
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="ship">●</button>
-            <button class="ship">●</button>
-            <button class="ship">●</button>
-            <button class="ship">●</button>
-            </p>
+                    {% for cell in row %}
+                        {% if not cell %}
+                        <button class="empty">●</button>
+                        {% elif cell == 1 %}
+                        <button class="ship">●</button>
+                        {% elif cell == -1 %}
+                        <button class="ship red">x</button>
+                        {% else %}
+                        <button>●</button>
+                        {% endif %}
+                    {% endfor %}
 
-            <p class="field-row">
-            <button disabled>Б</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
+                </p>
+            {% endfor %}
         </div>
-        <div class="column">
-           <h2>Поле противника</h2>
+        <div class="column" id="another">
+            <h2>Поле противника</h2>
 
-            <p class="field-row">
-            <button disabled style="color: transparent">0</button>
-            <button disabled>1</button>
-            <button disabled>2</button>
-            <button disabled>3</button>
-            <button disabled>4</button>
-            <button disabled>5</button>
-            <button disabled>6</button>
-            <button disabled>7</button>
-            <button disabled>8</button>
-            <button disabled>9</button>
-            <button disabled>10</button>
-            </p>
+            {% for i, row in another_field %}
+                <p class="field-row">
 
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="ship">●</button>
-            <button class="ship">●</button>
-            <button class="ship">●</button>
-            <button class="ship">●</button>
-            </p>
+                    {% for cell in row %}
+                        {% if not cell %}
+                        <button class="empty" onclick="turn({{ i }}, {{ forloop.counter0 }})">●</button>
+                        {% elif cell == 1 %}
+                        <button class="ship">●</button>
+                        {% elif cell == -1 %}
+                        <button class="ship red">x</button>
+                        {% else %}
+                        <button>●</button>
+                        {% endif %}
+                    {% endfor %}
 
-            <p class="field-row">
-            <button disabled>Б</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
-
-            <p class="field-row">
-            <button disabled>А</button>
-            <button class="ship red">x</button>
-            <button class="ship red">x</button>
-            <button>●</button>
-            <button class="ship">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button class="empty">●</button>
-            <button>●</button>
-            <button>●</button>
-            <button>●</button>
-            </p>
+                </p>
+            {% endfor %}
         </div>
         <div class="column chat"></div>
     </div>
