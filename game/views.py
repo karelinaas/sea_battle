@@ -36,6 +36,7 @@ def play(request, room_name):
         'another_field': another_field_json,
     }
 
+    # TODO вынести в хелпер
     for i, field in field_dict.items():
         if not field:
             if i == 'field':

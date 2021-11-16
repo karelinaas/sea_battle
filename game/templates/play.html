@@ -35,21 +35,21 @@
         for (var i = 0; i < field_data.length; i++) {
             row = field_data[i];
 
-            html += '<p class="field-row">';
+            html += '<p class="field-row"> ';
             for (var j = 0; j < row.length; j++) {
 
                 if (row[j] === 0) {
                     if (id === 'another') {
-                        html += '<button class="empty" onclick="turn(' + i + ', ' + j + ')">●</button>';
+                        html += '<button class="empty" onclick="turn(' + i + ', ' + j + ')">●</button> ';
                     } else {
-                        html += '<button class="empty">●</button>';
+                        html += '<button class="empty">●</button> ';
                     }
                 } else if (row[j] === 1) {
-                    html += '<button class="ship">●</button>';
+                    html += '<button class="ship">●</button> ';
                 } else if (row[j] === -1) {
-                    html += '<button class="ship red">x</button>';
+                    html += '<button class="ship red">x</button> ';
                 } else {
-                    html += '<button>●</button>';
+                    html += '<button>●</button> ';
                 }
             }
             html += '</p>';
@@ -60,12 +60,13 @@
 
     gameSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        console.log(data)
 
-        if (data.to !== player) {
-            render_field(data.to, data.another_field)
-        } else {
-            render_field(player, data.field)
+        if (data.to === player) {
+            render_field(data.to, data.to_field)
+        }
+
+        if (data.from === player) {
+            render_field(data.to, data.from_field)
         }
     };
     </script>

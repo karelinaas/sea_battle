@@ -4,6 +4,9 @@ import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
+r = redis.Redis(host='redis', port=6379, db=0)
+
+
 class ChatConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super(ChatConsumer, self).__init__(*args, **kwargs)
@@ -12,7 +15,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = None
 
         # TODO creds
-        self.redis = redis.Redis(host='localhost', port=6379, db=0)
+        self.redis = r
 
     async def connect(self):
         if self.channel_layer.receive_count > 2:
@@ -66,8 +69,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.room_name = None
         self.room_group_name = None
 
-        # TODO creds
-        self.redis = redis.Redis(host='redis', port=6379, db=0)
+        self.redis = r
 
     async def connect(self):
         if self.channel_layer.receive_count > 2:
@@ -101,44 +103,30 @@ class GameConsumer(AsyncWebsocketConsumer):
         )
 
     async def turn(self, event):
-        player = 'player1' if event['from'] == 'player2' else 'player2'
+        me = event['from']
+        another_player = 'player1' if me == 'player2' else 'player2'
 
-        # my fields
-        # my empty field
-        field_1 = json.loads(self.redis.get('another_field_' + self.room_name + '_' + event['from']))
-        # my real field
-        field_2 = json.loads(self.redis.get('field_' + self.room_name + '_' + player))
+        self.redis.set(self.room_name + '_turn', another_player)
 
-        # another player's field
-        # empty field of another player
-        another_field_1 = json.loads(self.redis.get('another_field_' + self.room_name + '_' + event['from']))
-        # real field of another player
-        another_field_2 = json.loads(self.redis.get('field_' + self.room_name + '_' + player))
+        another_player_real_field = json.loads(self.redis.get('field_' + self.room_name + '_' + another_player))
+        another_player_hidden_field = json.loads(self.redis.get('another_field_' + self.room_name + '_' + me))
 
         x = event['x']
         y = event['y']
 
-        # TODO field_2
-        if not field_1[x][y] == 0:
-            field_1[x][y] = -2
-            field_2[x][y] = -2
-        elif field_1[x][y] == 1:
-            field_1[x][y] = -1
-            field_2[x][y] = -1
+        if another_player_real_field[x][y] == 0:
+            another_player_real_field[x][y] = -2
+            another_player_hidden_field[x][y] = -2
+        elif another_player_real_field[x][y] == 1:
+            another_player_real_field[x][y] = -1
+            another_player_hidden_field[x][y] = -1
 
-        if another_field_2[x][y] == 0:
-            another_field_1[x][y] = -2
-            another_field_2[x][y] = -2
-        elif another_field_2[x][y] == 1:
-            another_field_1[x][y] = -1
-            another_field_2[x][y] = -1
-
-        self.redis.set('field_' + self.room_name + '_' + player, json.dumps(field_2))
-        self.redis.set('another_field_' + self.room_name + '_' + event['from'], json.dumps(another_field_1))
-        self.redis.set('field_' + self.room_name + '_' + player, json.dumps(another_field_2))
+        self.redis.set('field_' + self.room_name + '_' + another_player, json.dumps(another_player_real_field))
+        self.redis.set('another_field_' + self.room_name + '_' + me, json.dumps(another_player_hidden_field))
 
         await self.send(text_data=json.dumps({
-            'to': player,
-            'field': field_2,
-            'another_field': another_field_1,
+            'from': me,
+            'from_field': another_player_hidden_field,
+            'to': another_player,
+            'to_field': another_player_real_field,
         }))
