@@ -88,5 +88,6 @@ def play(request, room_name):
     if chat_log:
         var_dict['chat_log'] = [json.loads(message) for message in chat_log]
         var_dict['chat_log'] = sorted(var_dict['chat_log'], key=lambda x: (x['time_unix']))
+    print(var_dict['chat_log'])
 
     return render(request, 'play.html', var_dict)

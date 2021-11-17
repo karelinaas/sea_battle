@@ -174,9 +174,11 @@
         </div>
         <div class="column chat" id="chat_log">
         {% for message in chat_log %}
+        {% if message.message %}
         <p class="message {% if message.from == player %} mine {% else %} another {% endif %}">
             {{ message.message }} <span>{{ message.time }}</span>
         </p>
+        {% endif %}
         {% endfor %}
         </div>
 

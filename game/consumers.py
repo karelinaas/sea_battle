@@ -3,10 +3,7 @@ import json
 import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-
 r = redis.Redis(host='redis', port=6379, db=0)
-
-# TODO родительский класс?
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
