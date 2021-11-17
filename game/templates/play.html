@@ -25,7 +25,7 @@
 
     function render_field(player_char, field_data) {
         if (player_char === player) {
-            html = '<h2>Ваше поле</h2>';
+            html = '<h2>Ваше поле (игрок ' + player.replace('player', '') + ')</h2>';
             id = 'mine';
         } else {
             html = '<h2>Поле противника</h2>';
@@ -58,22 +58,30 @@
         document.getElementById(id).innerHTML = html
     }
 
+    function show_player(player) {
+        num = player.replace('player', '')
+        document.getElementById('turn_player').innerHTML = 'Сейчас ходит игрок ' + num;
+    }
+
     gameSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
 
         if (data.to === player) {
-            render_field(data.to, data.to_field)
+            render_field(data.to, data.to_field);
         }
 
         if (data.from === player) {
-            render_field(data.to, data.from_field)
+            render_field(data.to, data.from_field);
         }
+
+        show_player(data.turn);
     };
     </script>
 
+    <p id="turn_player">Сейчас ходит игрок {{ turn_player }}</p>
     <div class="wrapper" style="display: flex; height: 100%; align-items: center;">
         <div class="column" id="mine">
-            <h2>Ваше поле</h2>
+            <h2>Ваше поле (игрок {{ num }})</h2>
 
             {% for i, row in field %}
                 <p class="field-row">

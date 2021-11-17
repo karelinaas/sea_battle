@@ -4,7 +4,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Arial;
+    font-family: Arial, serif;
 }
 #game_board {
     display: grid;
@@ -83,4 +83,9 @@ input, select {
     color: black;
     background-color: #ad5353;
     border-color: #ad5353;
+}
+#turn_player {
+    position: absolute;
+    top: 20px;
+    left: 20px;
 }

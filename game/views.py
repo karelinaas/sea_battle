@@ -77,5 +77,9 @@ def play(request, room_name):
 
     field_dict['room_name'] = room_name
     field_dict['player'] = player
+    field_dict['num'] = player.replace('player', '')
+
+    turn_player = r.get('game_{0}_turn'.format(room_name))
+    field_dict['turn_player'] = turn_player.decode('ascii').replace('player', '') if turn_player else 'player1'
 
     return render(request, 'play.html', field_dict)
