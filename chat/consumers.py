@@ -48,7 +48,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'from': event['from'],
         })
 
-        self.redis.set('{0}_{1}'.format(self.room_name, event['time_unix']), text_data)
+        self.redis.set('chat_{0}_{1}'.format(self.room_name, event['time_unix']), text_data)
 
         # Send message to WebSocket
         await self.send(text_data=text_data)

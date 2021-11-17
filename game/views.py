@@ -31,13 +31,14 @@ def play(request, room_name):
     # another player's field
     another_field_json = r.get('another_field_' + room_name + '_' + player)
 
-    field_dict = {
+    var_dict = {
         'field': field_json,
         'another_field': another_field_json,
+        'chat_log': [],
     }
 
     # TODO вынести в хелпер
-    for i, field in field_dict.items():
+    for i, field in var_dict.items():
         if not field:
             if i == 'field':
                 if player == 'player1':
@@ -73,13 +74,19 @@ def play(request, room_name):
             r.set(i + '_' + room_name + '_' + player, json.dumps(field))
         else:
             field = json.loads(field)
-        field_dict[i] = enumerate(field)
+        var_dict[i] = enumerate(field)
 
-    field_dict['room_name'] = room_name
-    field_dict['player'] = player
-    field_dict['num'] = player.replace('player', '')
+    var_dict['room_name'] = room_name
+    var_dict['player'] = player
+    var_dict['num'] = player.replace('player', '')
 
     turn_player = r.get('game_{0}_turn'.format(room_name))
-    field_dict['turn_player'] = turn_player.decode('ascii').replace('player', '') if turn_player else 'player1'
+    var_dict['turn_player'] = turn_player.decode('ascii').replace('player', '') if turn_player else 'player1'
 
-    return render(request, 'play.html', field_dict)
+    keys = r.keys(pattern='chat_{0}_*'.format(room_name))
+    chat_log = r.mget(keys)
+    if chat_log:
+        var_dict['chat_log'] = [json.loads(message) for message in chat_log]
+        var_dict['chat_log'] = sorted(var_dict['chat_log'], key=lambda x: (x['time_unix']))
+
+    return render(request, 'play.html', var_dict)
