@@ -18,9 +18,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.redis = r
 
     async def connect(self):
-        if self.channel_layer.receive_count > 2:
-            await self.close()
-
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_{0}'.format(self.room_name)
 
@@ -51,10 +48,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'from': event['from'],
         })
 
+        self.redis.set('{0}_{1}'.format(self.room_name, event['time_unix']), text_data)
+
         # Send message to WebSocket
         await self.send(text_data=text_data)
-
-        self.redis.set(self.room_name + '_' + event['time_unix'], text_data)
 
 
 class GameConsumer(AsyncWebsocketConsumer):
@@ -67,9 +64,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.redis = r
 
     async def connect(self):
-        if self.channel_layer.receive_count > 2:
-            await self.close()
-
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'game_{0}'.format(self.room_name)
         self.turn_player = self.redis.get('{0}_turn'.format(self.room_group_name))

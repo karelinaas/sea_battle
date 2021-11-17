@@ -71,6 +71,7 @@ input, select {
     height: 100%;
     right: 0;
     bottom: 120px;
+    top: 0;
     overflow: scroll;
 }
 .field-row {
