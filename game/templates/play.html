@@ -14,6 +14,14 @@
         + '/'
     );
 
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/'
+        + roomName
+        + '/'
+    );
+
     function turn(x, y) {
         gameSocket.send(JSON.stringify({
             'x': x,
@@ -76,6 +84,12 @@
 
         show_player(data.turn);
     };
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+
+
+    }
     </script>
 
     <p id="turn_player">Сейчас ходит игрок {{ turn_player }}</p>
@@ -122,6 +136,28 @@
                 </p>
             {% endfor %}
         </div>
-        <div class="column chat"></div>
+        <div class="column chat" id="chat_log">
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message mine">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        <p class="message another">sdfijdsifj <span>17.11.2021 13:30:10</span></p>
+        </div>
+
+        <input id="chat-message-input" type="text" size="100" style="width: 350px"><br>
+        <input id="chat-message-submit" type="button" value="Отправить" style="width: 382px">
     </div>
 {% endblock content %}

@@ -58,9 +58,20 @@ input, select {
     height: 46px;
     margin-top: 10px;
 }
+#another button {
+    cursor: pointer;
+}
 .column {
     text-align: center;
     margin-right: 40px;
+}
+.column.chat {
+    position: absolute;
+    width: 20%;
+    height: 100%;
+    right: 0;
+    bottom: 120px;
+    overflow: scroll;
 }
 .field-row {
     margin: 0 0 5px 0;
@@ -88,4 +99,36 @@ input, select {
     position: absolute;
     top: 20px;
     left: 20px;
+}
+#chat-message-submit {
+    position: absolute;
+    bottom: 0;
+    right: 40px;
+    cursor: pointer;
+}
+#chat-message-input {
+    position: absolute;
+    bottom: 60px;
+    right: 40px;
+    background: white;
+    color: black;
+}
+.message {
+    padding: 10px;
+    color: white;
+}
+.message.mine {
+    background-color: grey;
+    text-align: right;
+    border-radius: 10px 10px 0 10px;
+}
+.message.another {
+    background-color: #19c168;
+    text-align: left;
+    border-radius: 10px 10px 10px 0;
+    width: fit-content;
+}
+.message span {
+    font-size: 10px;
+    opacity: .7;
 }

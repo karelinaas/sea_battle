@@ -32,13 +32,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-    async def disconnect(self, close_code):
-        # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name,
-        )
-
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):
         message = json.loads(text_data)
@@ -54,13 +47,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data = json.dumps({
             'message': event['message'],
             'time': event['time'],
-            'user': event['user'],
+            'time_unix': event['time_unix'],
+            'from': event['from'],
         })
 
         # Send message to WebSocket
         await self.send(text_data=text_data)
 
-        self.redis.set(self.room_name + '_' + event['time'], text_data)
+        self.redis.set(self.room_name + '_' + event['time_unix'], text_data)
 
 
 class GameConsumer(AsyncWebsocketConsumer):
@@ -93,13 +87,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
-
-    async def disconnect(self, close_code):
-        # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name,
-        )
 
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
