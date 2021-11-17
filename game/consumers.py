@@ -56,6 +56,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'time': event['time'],
             'time_unix': event['time_unix'],
             'from': event['from'],
+            'type': 'message',
         })
 
         # Save message to redis (chat history)
@@ -63,6 +64,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Send message to WebSocket
         await self.send(text_data=text_data)
+
+    async def flush_room(self, event):
+        """
+        Flush all room data from Redis.
+        :return:
+        """
+        keys_field = self.redis.keys(pattern='field_{0}_*'.format(self.room_name))
+        keys_another_field = self.redis.keys(pattern='another_field_{0}_*'.format(self.room_name))
+        keys_chat = self.redis.keys(pattern='chat_{0}_*'.format(self.room_name))
+
+        self.redis.delete('{0}_turn'.format(self.room_group_name))
+        self.redis.delete(*keys_field)
+        self.redis.delete(*keys_another_field)
+        self.redis.delete(*keys_chat)
+
+        await self.send(text_data=json.dumps({
+            'room_flushed': True,
+            'type': 'flush_room',
+        }))
 
 
 class GameConsumer(AsyncWebsocketConsumer):

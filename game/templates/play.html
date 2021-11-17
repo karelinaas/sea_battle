@@ -100,7 +100,11 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat_log').insertAdjacentHTML('beforeend', render_message(data));
+            if (data.type === 'message') {
+                document.querySelector('#chat_log').insertAdjacentHTML('beforeend', render_message(data));
+            } else if (data.type === 'flush_room' && data.room_flushed) {
+                document.location.href = window.location.origin
+            }
         }
 
         document.querySelector('#chat-message-input').focus();
@@ -124,6 +128,12 @@
                 'type': 'chat_message',
             }));
             messageInputDom.value = '';
+        }
+
+        document.querySelector('#finish_game').onclick = function(e) {
+            chatSocket.send(JSON.stringify({
+                'type': 'flush_room',
+            }));
         }
     });
     </script>
@@ -185,4 +195,5 @@
         <input id="chat-message-input" type="text" size="100" style="width: 350px"><br>
         <input id="chat-message-submit" type="button" value="Отправить" style="width: 382px">
     </div>
+    <div id="finish_game">Закончить игру</div>
 {% endblock content %}
